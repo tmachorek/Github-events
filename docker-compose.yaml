@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: Web
+    image: "web"
+    container_name: "flask-container"
+    ports:
+      - "8080:8080"
+    volumes:
+      -  ./Web:/app
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  fetcher:
+      build:
+         context: Fetcher
+      image: "data-fetch"
+      container_name: "fetcher-container"
+      depends_on:
+        - postgres
+      restart: on-failure
+
+  postgres:
+    build:
+      context: Db
+    image: "postgres"
+    container_name: "postgres-container"
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgre"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
